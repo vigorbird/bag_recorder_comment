@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
     }
 
     //Make Bag Launcher node
-    BagLauncher bag_launcher(nh, options);
+    BagLauncher bag_launcher(nh, options);//非常重要的构造函数！！！！
 
     //main loop
     while(ros::ok()) {

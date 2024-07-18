@@ -58,7 +58,10 @@ namespace bag_recorder {
     class OutgoingMessage
     {
         public:
-            OutgoingMessage(std::string const& _topic, topic_tools::ShapeShifter::ConstPtr _msg, boost::shared_ptr<ros::M_string> _connection_header, ros::Time _time);
+            OutgoingMessage(std::string const& _topic, 
+                            topic_tools::ShapeShifter::ConstPtr _msg, 
+                            boost::shared_ptr<ros::M_string> _connection_header, 
+                            ros::Time _time);
 
             std::string                         topic;
             topic_tools::ShapeShifter::ConstPtr msg;

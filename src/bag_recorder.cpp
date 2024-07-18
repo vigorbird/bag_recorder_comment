@@ -147,7 +147,7 @@ std::string BagRecorder::start_recording(std::string bag_name, std::vector<std::
     bag_name += string(".bag");
     bag_filename_ = data_folder_ + bag_name;
 
-    message_queue_ = new std::queue<OutgoingMessage>;
+    message_queue_ = new std::queue<OutgoingMessage>;//std::queue<OutgoingMessage>*  message_queue_;
 
     //test for asterisk to subscribe all topics
     foreach(string const& topic, topics) {
@@ -192,7 +192,7 @@ std::string BagRecorder::start_recording(std::string bag_name, std::vector<std::
     }
 
     // start write thread
-    record_thread_ = boost::thread(boost::bind(&BagRecorder::queue_processor, this));
+    record_thread_ = boost::thread(boost::bind(&BagRecorder::queue_processor, this));//非常重要！！！！！启动了线程
     queue_condition_.notify_all();
 
     return bag_name;
@@ -335,7 +335,10 @@ shared_ptr<ros::Subscriber> BagRecorder::generate_subscriber(string const& topic
 * @param [count] pointer to an in, fills template requirements but not used
 * @details turns a message into and OutgoingMessage and adds it to the queue to be written.
 */
-void BagRecorder::subscriber_callback(const ros::MessageEvent<topic_tools::ShapeShifter const>& msg_event, string const& topic, shared_ptr<ros::Subscriber> subscriber, shared_ptr<int> count) {
+void BagRecorder::subscriber_callback(const ros::MessageEvent<topic_tools::ShapeShifter const>& msg_event, 
+                                        string const& topic, 
+                                        shared_ptr<ros::Subscriber> subscriber, 
+                                        shared_ptr<int> count) {
     //These do nothing, but fill the template requirements
     (void)subscriber;
     (void)count;
@@ -409,8 +412,9 @@ void BagRecorder::queue_processor() {
             //check every 1/4th second if queue is empty or end condition
             //note that the timed_wait function unlocks queue_lock
             //so other threads can write to the queue
-            queue_condition_.timed_wait(queue_lock, xt);
-        }
+            queue_condition_.timed_wait(queue_lock, xt);//接收到数据后 
+        }//内循环的while结束
+
         //if finished flag is set to true stop recording or stop_signal_ recieved
         {
             boost::mutex::scoped_lock start_stop_lock(start_stop_mutex_);
@@ -425,12 +429,13 @@ void BagRecorder::queue_processor() {
         queue_lock.release()->unlock();
 
         //perform safety checks before writing
-        run_scheduled_checks();
+        run_scheduled_checks();//就在这个函数下面了
 
         //if checks passed, can log, then log
+        //默认每帧数据都会写入硬盘
         if (can_log())
             bag_.write(out.topic, out.time, *out.msg, out.connection_header);
-    }
+    }//外层while循环结束
 
     ROS_INFO("Closing %s.", bag_filename_.c_str());
     bag_.close();
